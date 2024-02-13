@@ -4,7 +4,11 @@ const Post = require("../models/Post");
 module.exports = {
   getProfile: async (req, res) => {
     try {
+      //Since we have a session each request (req) contains the logged-in users info: req.user
+      //Grabbing just the posts of the logged-in user
+      //Console.log (req.user) to see everything
       const posts = await Post.find({ user: req.user.id });
+      //Sending post data from mongodb and user data to ejs template
       res.render("profile.ejs", { posts: posts, user: req.user });
     } catch (err) {
       console.log(err);
@@ -20,6 +24,10 @@ module.exports = {
   },
   getPost: async (req, res) => {
     try {
+      //id param comes from post routes
+      //router.get("/:id", ensureAuth, postsController.getPost);
+      //example url: http://localhost:2121/post/01293847a;osidjf
+      //id === 01293847a;osidjf
       const post = await Post.findById(req.params.id);
       res.render("post.ejs", { post: post, user: req.user });
     } catch (err) {
@@ -31,6 +39,7 @@ module.exports = {
       // Upload image to cloudinary
       const result = await cloudinary.uploader.upload(req.file.path);
 
+      //media stored on cloudinary - above request responds with url and the media id that you will need when deleting content
       await Post.create({
         title: req.body.title,
         image: result.secure_url,
